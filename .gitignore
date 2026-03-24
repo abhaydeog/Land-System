@@ -1,0 +1,6 @@
+node_modules/
+.env
+uploads/
+*.bak
+__pycache__/
+.env.local
