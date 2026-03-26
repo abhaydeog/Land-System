@@ -27,21 +27,23 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps / postman)
+  origin: (origin, callback) => {
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+      callback(null, origin);   // ✅ IMPORTANT (true नहीं, origin भेजो)
     } else {
-      return callback(new Error("CORS not allowed"));
+      callback(new Error("Not allowed by CORS"));
     }
   },
   credentials: true,
 }));
 
-// ✅ VERY IMPORTANT (preflight fix)
-app.options("*", cors());
+// ✅ Preflight fix (VERY IMPORTANT)
+app.options("*", cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 
 // ── Rate Limiting ──
 const limiter = rateLimit({
