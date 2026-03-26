@@ -16,10 +16,32 @@ const app = express();
 
 // ── Security Middleware ──
 app.use(helmet());
+//app.use(cors({
+ // origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  //credentials: true
+//}));
+
+const allowedOrigins = [
+  "https://land-portal.netlify.app",
+  "http://localhost:5173"
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps / postman)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("CORS not allowed"));
+    }
+  },
+  credentials: true,
 }));
+
+// ✅ VERY IMPORTANT (preflight fix)
+app.options("*", cors());
 
 // ── Rate Limiting ──
 const limiter = rateLimit({
