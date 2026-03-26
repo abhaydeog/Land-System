@@ -125,7 +125,7 @@ uvicorn main:app --port 8000 --reload
 cd frontend
 npm install
 cp .env.example .env
-# .env mein: VITE_API_URL=http://localhost:5000/api
+# .env mein: VITE_API_URL=https://land-system-1.onrender.com/api
 npm run dev        # :3000 par start hoga
 ```
 
