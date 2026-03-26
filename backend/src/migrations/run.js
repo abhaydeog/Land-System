@@ -143,7 +143,6 @@ async function runMigrations() {
     process.exit(1);
   } finally {
     client.release();
-    pool.end();
   }
 }
 
