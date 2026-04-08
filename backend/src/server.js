@@ -15,13 +15,13 @@ const reportRoutes = require('./routes/report.routes');
 const app = express();
 
 
-// ── ✅ Security Middleware (FIXED) ──
+// ── ✅ Security Middleware ──
 app.use(helmet({
   crossOriginResourcePolicy: false
 }));
 
 
-// ── ✅ CORS (FINAL STABLE) ──
+// ── ✅ CORS (FINAL WORKING) ──
 const allowedOrigins = [
   "https://land-portal.netlify.app",
   "http://localhost:5173"
@@ -29,10 +29,10 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
+    if (!origin) return callback(null, true); // Postman / curl
 
     if (allowedOrigins.includes(origin)) {
-      return callback(null, origin); // ✅ exact origin भेजना जरूरी
+      return callback(null, true); // ✅ true देना safe है
     } else {
       return callback(null, false);
     }
@@ -44,15 +44,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// ✅ VERY IMPORTANT (preflight fix — 404 खत्म करेगा)
-app.options("*", cors(corsOptions));
+// ✅ Preflight (CORS का main fix)
+app.options('*', cors(corsOptions));
 
 
 // ── Rate Limiting ──
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
-  message: { success: false, message: 'Bahut zyada requests. Thodi der baad try karen.' }
 });
 app.use('/api', limiter);
 
@@ -63,13 +62,17 @@ app.use(express.urlencoded({ extended: true }));
 
 
 // ── Logging ──
-if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));
-}
+app.use(morgan('dev'));
 
 
 // ── Static Files ──
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+
+// ── ✅ ROOT ROUTE (ADD THIS) ──
+app.get('/', (req, res) => {
+  res.send('Bhumi Backend Running ✅');
+});
 
 
 // ── Routes ──
@@ -80,12 +83,12 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reports', reportRoutes);
 
 
-// ── Health Check ──
+// ── ✅ Health Check ──
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
-    timestamp: new Date().toISOString(),
-    service: 'Bhumi Backend'
+    service: 'Bhumi Backend',
+    time: new Date()
   });
 });
 
@@ -101,19 +104,18 @@ app.use((req, res) => {
 
 // ── Global Error Handler ──
 app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
+  console.error(err.stack);
 
   res.status(err.status || 500).json({
     success: false,
-    message: err.message || 'Server error',
+    message: err.message || 'Server error'
   });
 });
 
 
+// ── Server Start ──
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
-module.exports = app;
