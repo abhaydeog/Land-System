@@ -9,6 +9,7 @@ const generateToken = (id, role) =>
 // POST /api/auth/login
 exports.login = async (req, res) => {
   try {
+    console.log("JWT_SECRET:", process.env.JWT_SECRET);
     const { email, password } = req.body;
     if (!email || !password)
       return res.status(400).json({ success: false, message: 'Email aur password zaroori hai' });
