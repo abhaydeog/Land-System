@@ -3,8 +3,13 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { query } = require('../config/db');
 
-const generateToken = (id, role) =>
-  jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+const generateToken = (id, role) => {
+  const SECRET = process.env.JWT_SECRET || "abhay_secret_123"; // ✅ FIX
+
+  return jwt.sign({ id, role }, SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+  });
+};
 
 // POST /api/auth/login
 exports.login = async (req, res) => {
