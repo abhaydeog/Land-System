@@ -13,10 +13,10 @@ export function AuthProvider({ children }) {
   const token  = localStorage.getItem('bhumi_token')
 
   if (stored && token) {
-    setUser(JSON.parse(stored))
-
+    
     // ✅ ADD THIS LINE
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    setUser(JSON.parse(stored))
   }
 
   setLoading(false)

@@ -1,20 +1,16 @@
 import axios from 'axios'
 
-console.log("API URL:", import.meta.env.VITE_API_URL);
-
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: 'https://land-system-1.onrender.com/api',
   timeout: 15000,
 })
 
-// Attach JWT token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('bhumi_token')
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-// Handle auth errors globally
 api.interceptors.response.use(
   (res) => res,
   (err) => {
