@@ -9,21 +9,31 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const stored = localStorage.getItem('bhumi_user')
-    const token  = localStorage.getItem('bhumi_token')
-    if (stored && token) {
-      setUser(JSON.parse(stored))
-    }
-    setLoading(false)
-  }, [])
+  const stored = localStorage.getItem('bhumi_user')
+  const token  = localStorage.getItem('bhumi_token')
+
+  if (stored && token) {
+    setUser(JSON.parse(stored))
+
+    // ✅ ADD THIS LINE
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+  }
+
+  setLoading(false)
+}, [])
 
   const login = async (email, password) => {
-    const { data } = await api.post('/auth/login', { email, password })
-    localStorage.setItem('bhumi_token', data.token)
-    localStorage.setItem('bhumi_user',  JSON.stringify(data.user))
-    setUser(data.user)
-    return data.user
-  }
+  const { data } = await api.post('/auth/login', { email, password })
+
+  localStorage.setItem('bhumi_token', data.token)
+  localStorage.setItem('bhumi_user',  JSON.stringify(data.user))
+
+  // ✅ ADD THIS LINE (MOST IMPORTANT)
+  api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`
+
+  setUser(data.user)
+  return data.user
+}
 
   const logout = () => {
     localStorage.removeItem('bhumi_token')
